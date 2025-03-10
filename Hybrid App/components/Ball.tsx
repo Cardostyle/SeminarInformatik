@@ -8,25 +8,24 @@ import * as TaskManager from 'expo-task-manager';
 const { width, height } = Dimensions.get("window");
 const BALL_RADIUS = 40;
 const SENSITIVITY = 50;
-const LOGGING_TASK = "background-logging-task";
+
+// **Globale Variablen für Zählung der Sensoraufrufe**
+let globalAccelCount = 0;
+let globalLightCount = 0;
 
 export default function SensorBallApp() {
   const [ballPosition, setBallPosition] = useState({ x: width / 2, y: height / 2 });
   const [lightIntensity, setLightIntensity] = useState(100);
   const [logs, setLogs] = useState([]);
   const [cpuUsage, setCpuUsage] = useState(0);
-  const [appState, setAppState] = useState(AppState.currentState);
-  
-  const [accelCount, setAccelCount] = useState(0);
-  const [lightCount, setLightCount] = useState(0);
   const [lastUpdateTime, setLastUpdateTime] = useState("");
 
   useEffect(() => {
     let startTime = Date.now();
 
-    // Sensor-Abos
+    // **Beschleunigungssensor überwachen & Bewegungen registrieren**
     let accelerometerSubscription = Accelerometer.addListener(({ x, y }) => {
-      setAccelCount(prev => prev + 1);
+      globalAccelCount++; // Globale Zählung der Aufrufe
 
       setBallPosition((prev) => ({
         x: Math.min(Math.max(prev.x + x * SENSITIVITY, BALL_RADIUS), width - BALL_RADIUS),
@@ -34,23 +33,26 @@ export default function SensorBallApp() {
       }));
     });
 
+    // **Lichtsensor überwachen**
     let lightSubscription = LightSensor.addListener(({ illuminance }) => {
+      globalLightCount++; // Globale Zählung der Aufrufe
       setLightIntensity(illuminance);
-      setLightCount(prev => prev + 1);
     });
 
-    // Alle 10 Sekunden Loggen
+    // **Alle 10 Sekunden Sensorlog ausgeben & Zählung zurücksetzen**
     const interval = setInterval(() => {
       const now = new Date();
       const timeString = now.toLocaleTimeString();
 
       setLogs((prevLogs) => [
-        `⏱️ ${timeString} | Accel: ${accelCount} in 10s (${(accelCount / 10).toFixed(2)} /s) | Light: ${lightCount} in 10s (${(lightCount / 10).toFixed(2)} /s)`,
+        `⏱️ ${timeString} | Accel: ${globalAccelCount} in 10s (${(globalAccelCount / 10).toFixed(2)} /s) | Light: ${globalLightCount} in 10s (${(globalLightCount / 10).toFixed(2)} /s)`,
         ...prevLogs.slice(0, 10),
       ]);
 
-      setAccelCount(0);
-      setLightCount(0);
+      // **Globale Variablen zurücksetzen**
+      globalAccelCount = 0;
+      globalLightCount = 0;
+
       setLastUpdateTime(timeString);
     }, 10000);
 
