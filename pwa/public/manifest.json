@@ -1,0 +1,36 @@
+{
+  "short_name": "SensorPWA",
+  "name": "Sensor & Bewegung App",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "screenshots": [
+    {
+      "src": "/images/Screenshot-Mobile.png",
+      "type": "image/png",
+      "sizes": "994x1255",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/images/screenshot-desktop.png",
+      "type": "image/png",
+      "sizes": "2557x1404",
+      "form_factor": "wide"
+    }
+  ]
+}
