@@ -1,5 +1,6 @@
 package com.example.seminarinformatik;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,8 +15,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
+import java.io.RandomAccessFile;
+import java.io.IOException;
 
 public class SensorBackgroundService extends Service implements SensorEventListener {
 
@@ -116,10 +121,12 @@ public class SensorBackgroundService extends Service implements SensorEventListe
 
             float accelerometerRate = accelerometerCount / elapsedSeconds;
             float lightSensorRate = lightSensorCount / elapsedSeconds;
+            float cpuUsage = getCpuUsage();
 
             Log.d("SensorLog", "Messwerte in den letzten 10 Sekunden (Background):");
             Log.d("SensorLog", "  - Beschleunigungssensor: " + accelerometerCount + " Messungen (" + accelerometerRate + " Messungen/Sekunde)");
             Log.d("SensorLog", "  - Lichtsensor: " + lightSensorCount + " Messungen (" + lightSensorRate + " Messungen/Sekunde)");
+            Log.d("SensorLog", "  - CPU-Auslastung: " + cpuUsage + "%");
 
             accelerometerCount = 0;
             lightSensorCount = 0;
@@ -127,4 +134,19 @@ public class SensorBackgroundService extends Service implements SensorEventListe
             handler.postDelayed(this, 10000);
         }
     };
+
+    private float getCpuUsage() {
+        try {
+            ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+            if (am != null) {
+                android.app.ActivityManager.MemoryInfo mi = new android.app.ActivityManager.MemoryInfo();
+                am.getMemoryInfo(mi);
+                return (float) (1.0 - ((double) mi.availMem / mi.totalMem)) * 100;
+            }
+        } catch (Exception e) {
+            Log.e("SensorLog", "Fehler beim Lesen der CPU-Auslastung", e);
+        }
+        return -1.0f; // Falls ein Fehler auftritt
+    }
+
 }
